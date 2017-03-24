@@ -12,6 +12,10 @@ import android.net.wifi.*;
 import java.util.*;
 import android.widget.*;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+
 public class MainActivity extends AppCompatActivity implements Runnable{
 
     @Override
@@ -22,7 +26,10 @@ public class MainActivity extends AppCompatActivity implements Runnable{
         Thread t=new Thread(this);
         t.start();
 
+
+
     }
+    static int i=0;
     @Override
     public void run() {
         Button next=(Button)findViewById(R.id.goToNext);
@@ -36,13 +43,21 @@ public class MainActivity extends AppCompatActivity implements Runnable{
             }
         });
         try {
+            GraphView graph = (GraphView) findViewById(R.id.graph);
+            final LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
+            series.setTitle("Variation in RSSI");
+            graph.addSeries(series);
+            graph.getViewport().setXAxisBoundsManual(true);
+            graph.getViewport().setMinX(0);
+            graph.getViewport().setMaxX(60);
+            graph.getViewport().setYAxisBoundsManual(true);
+            graph.getViewport().setMaxY(0);
+            graph.getViewport().setMinY(-100);
+            graph.setTitle("Variations in RSSI");
             final SQLiteDatabase sqlDB=openOrCreateDatabase("db123#4",MODE_PRIVATE,null);
             sqlDB.execSQL("CREATE TABLE IF NOT EXISTS RSSIs(EventNo int AUTO_INCREMENT,rssiVal int,timeMeasured VARCHAR)");
             sqlDB.execSQL("DELETE FROM RSSIs");
             final Vector<String> RSSIDetails=new <String>Vector();
-            ListView listView = (ListView) findViewById(R.id.RSSIDisplay);
-            final ArrayAdapter arrayAdapter=new ArrayAdapter(this,android.R.layout.simple_list_item_1,android.R.id.text1,RSSIDetails);
-            listView.setAdapter(arrayAdapter);
             while(true)
             {
                 //arrayAdapter.clear();
@@ -51,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
                     @Override
                     public void run() {
                         final TextView signalDisplayer=(TextView)findViewById(R.id.signalDisplay);
-
+                        boolean startAhead=false;
                         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
                         if(wifiManager.getWifiState()==WifiManager.WIFI_STATE_ENABLED)
                         {
@@ -60,37 +75,20 @@ public class MainActivity extends AppCompatActivity implements Runnable{
                             signalDisplayer.setText("Signal Strength is " + rssi + " dbM");
                             System.out.println(rssi);
                             RSSIDetails.add(0,rssi+"dbMs@"+Calendar.getInstance().getTime());
-                            arrayAdapter.notifyDataSetChanged();
+                            if(i>60)
+                                startAhead=true;
+                            series.appendData(new DataPoint(i,rssi),startAhead,60);
+                            //arrayAdapter.notifyDataSetChanged();
                             sqlDB.execSQL("INSERT INTO RSSIs(rssiVal,timeMeasured) VALUES("+rssi+",'"+Calendar.getInstance().getTime()+"')");
                         }
                         else
                         {
                             signalDisplayer.setText("Wifi not enabled!");
                         }
+                        i++;
                     }
                 });
-                /*Cursor getRssis=sqlDB.rawQuery("SELECT * FROM RSSIs ORDER BY timeMeasured DESC",null);
-                RSSIDetails.clear();
-                arrayAdapter.notifyDataSetChanged();
-                int a;
-                String b=null;
-                getRssis.moveToFirst();
-                if(getRssis!=null)
-                {
-                    do {
-                        a=getRssis.getInt(1);
-                        b=getRssis.getString(2);
-                        String n=a+"dbMs@"+b;
-                        RSSIDetails.add(n);
-                    }
-                    while (getRssis.moveToNext());
-                }*/
-                Thread.sleep(1000);
-                //arrayAdapter.addAll(RSSIDetails);
-                /*ListView listView = (ListView) findViewById(R.id.RSSIDisplay);
-                ArrayAdapter arrayAdapter=new ArrayAdapter(this,android.R.layout.simple_list_item_1,android.R.id.text1,RSSIDetails);
-                listView.setAdapter(arrayAdapter);
-                */
+                Thread.sleep(100);
             }
         }
         catch (Exception e)
