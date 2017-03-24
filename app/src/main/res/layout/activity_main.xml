@@ -10,7 +10,8 @@
         android:layout_width="344dp"
         android:layout_height="495dp"
         tools:layout_editor_absoluteY="8dp"
-        tools:layout_editor_absoluteX="8dp">
+        tools:layout_editor_absoluteX="8dp"
+        tools:ignore="MissingConstraints">
 
         <TextView
             android:layout_width="match_parent"
@@ -35,13 +36,22 @@
             android:textSize="24sp" />
 
         <Button
-            android:id="@+id/update"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/signalDisplay"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="42dp"
-            android:text="Update Information" />
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_below="@id/signalDisplay"
+            android:layout_centerInParent="true"
+            android:text="View All Detected"
+            android:id="@+id/goToNext"/>
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_below="@id/goToNext"
+            android:layout_alignStart="@+id/signalDisplay"
+            android:id="@+id/RSSIDisplay">
+
+        </ListView>
 
 
     </RelativeLayout>
