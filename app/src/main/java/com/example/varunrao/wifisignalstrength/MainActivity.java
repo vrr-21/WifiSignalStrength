@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
             sqlDB.execSQL("CREATE TABLE IF NOT EXISTS RSSIs(EventNo int AUTO_INCREMENT,rssiVal int,timeMeasured VARCHAR)");
             sqlDB.execSQL("DELETE FROM RSSIs");
             final Vector<String> RSSIDetails=new <String>Vector();
-            while(true)
+            while(i<20)
             {
                 //arrayAdapter.clear();
                 //arrayAdapter.notifyDataSetChanged();
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
                         i++;
                     }
                 });
-                Thread.sleep(100);
+                Thread.sleep(500);
             }
         }
         catch (Exception e)
